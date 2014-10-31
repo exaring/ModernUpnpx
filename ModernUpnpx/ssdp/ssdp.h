@@ -58,6 +58,7 @@ public:
 	virtual ~SSDP();
 	int Start();
 	int Stop();
+    void Reset();
 	int AddObserver(SSDPObserver* observer);
 	int RemoveObserver(SSDPObserver* observer);
 	int Advertise();

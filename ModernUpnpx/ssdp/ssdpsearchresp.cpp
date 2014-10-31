@@ -139,7 +139,15 @@ int SSDPSearchResp::Process(struct sockaddr* sender, std::vector<SSDP_HTTP_HEADE
 		}
 		
 	}
-	
+    else if (device) {
+		//Inform the observers
+		if(device->isdevice || device->isroot){
+			mDB->DeviceUpdate(device);
+		}else if(device->isservice){
+			mDB->ServiceUpdate(device);
+		}
+    }
+
 	//always update cache control
 	if(device != NULL && cache >= 0){
 		mDB->UpdateCacheControl(uuid.uuid, uuid.uuidlen, cache);

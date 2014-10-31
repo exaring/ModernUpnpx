@@ -33,6 +33,7 @@
 
 
 #import <Foundation/Foundation.h>
+#include <pthread.h>
 
 @class BasicParserAsset;
 @interface BasicParser : NSObject <NSXMLParserDelegate> {
@@ -42,6 +43,8 @@
 	BOOL mSupportNamespaces;
 	NSDictionary * elementAttributeDict;
 	NSString *currentElementName;
+    pthread_mutex_t mMutexAccess;
+	pthread_mutexattr_t mMutexAccessAttr;
 }
 
 -(id)initWithNamespaceSupport:(BOOL)namespaceSupport;

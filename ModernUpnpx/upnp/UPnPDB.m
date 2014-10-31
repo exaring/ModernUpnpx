@@ -83,6 +83,12 @@
 	[super dealloc];
 }
 
+-(void)reset{
+    [self lock];
+    [rootDevices removeAllObjects];
+    [self unlock];
+}
+
 -(void)lock{
 	[mMutex lock];
 }
@@ -92,8 +98,8 @@
 }
 
 
--(int)addObserver:(UPnPDBObserver*)obs{
-	int ret = 0;
+-(NSUInteger)addObserver:(UPnPDBObserver*)obs{
+	NSUInteger ret = 0;
 	[self lock];
 	[mObservers addObject:obs];
 	ret = [mObservers count];
@@ -101,8 +107,8 @@
 	return ret;
 }
 
--(int)removeObserver:(UPnPDBObserver*)obs{
-	int ret = 0;
+-(NSUInteger)removeObserver:(UPnPDBObserver*)obs{
+	NSUInteger ret = 0;
 	[self lock];
 	[mObservers removeObject:obs];
 	ret = [mObservers count];

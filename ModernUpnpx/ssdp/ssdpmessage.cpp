@@ -31,6 +31,9 @@
 //
 // **********************************************************************************
 
+#include <stdlib.h>
+#include <string.h>
+
 #include "ssdpmessage.h"
 
 SSDPMessage::SSDPMessage():mDB(NULL){

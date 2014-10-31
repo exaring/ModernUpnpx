@@ -102,12 +102,20 @@
 	}else{	
 		//NSLog(@"LastChange - element:%@, value:%@", currentElementName, elementValue );
 		//Parse LastChange
-		NSData *lastChange = [elementValue dataUsingEncoding:NSUTF8StringEncoding]; 
-		
-		int ret = [lastChangeParser parseFromData:lastChange];
-		if(ret != 0){
-			NSLog(@"Something went wrong during LastChange parsing");
-		}
+        // Fix needed because of NSXMLParser non-reentrant crash >= iOS8
+
+/* TODO: Need to fix non-reentrant NSXMLParser crash >= iOS8 and dispatch is not the solution as accessed elementAttributeDict is used too late
+        dispatch_queue_t reentrantAvoidanceQueue = dispatch_queue_create("reentrantAvoidanceQueue", DISPATCH_QUEUE_SERIAL);
+        dispatch_async(reentrantAvoidanceQueue, ^{
+            NSData *lastChange = [elementValue dataUsingEncoding:NSUTF8StringEncoding];
+
+            int ret = [lastChangeParser parseFromData:lastChange];
+            if(ret != 0){
+                NSLog(@"Something went wrong during LastChange parsing");
+            }
+        });
+        dispatch_sync(reentrantAvoidanceQueue, ^{ });
+*/
 	}
 }
 

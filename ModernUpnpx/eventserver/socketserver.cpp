@@ -40,6 +40,10 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <ifaddrs.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <pthread.h>
 
 #include "iphoneport.h"
 
@@ -57,7 +61,7 @@
 
 SocketServer::SocketServer(unsigned short preferredPort):mServerSocket(NULL),mReadLoop(0){
 	mPort = preferredPort;
-	mMaxConnections = 20;
+	mMaxConnections = 50; // CHANGED FROM 20 TO 50
 	memset(ipAddress, 0, sizeof(ipAddress));	
 }
 

@@ -62,9 +62,10 @@
 
 -(int)startSSDP;
 -(int)stopSSDP;
+-(void)reset;
 -(int)searchSSDP;
--(int)addObserver:(SSDPDB_ObjC_Observer*)obs;
--(int)removeObserver:(SSDPDB_ObjC_Observer*)obs;
+-(NSUInteger)addObserver:(SSDPDB_ObjC_Observer*)obs;
+-(NSUInteger)removeObserver:(SSDPDB_ObjC_Observer*)obs;
 -(void)SSDPDBUpdate;
 -(void)setUserAgentProduct:(NSString*)product andOS:(NSString*)os;
 

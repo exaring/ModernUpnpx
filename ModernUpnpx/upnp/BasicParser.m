@@ -31,9 +31,10 @@
 //
 // **********************************************************************************
 
-
 #import "BasicParser.h"
 #import "BasicParserAsset.h"
+
+#undef DLNA_DEBUG
 
 @interface BasicParser()
 	-(int)startParser:(NSXMLParser*)parser;	
@@ -54,6 +55,10 @@ static NSString *ElementStop = @"ElementStop";
     self = [super init];
     
     if (self) {
+        pthread_mutexattr_init(&mMutexAccessAttr);
+        pthread_mutexattr_settype(&mMutexAccessAttr, PTHREAD_MUTEX_RECURSIVE);
+        pthread_mutex_init(&mMutexAccess, &mMutexAccessAttr);
+
         mSupportNamespaces = namespaceSupport;
         mElementStack = [[NSMutableArray alloc] init];
         mAssets = [[NSMutableArray alloc] init];
@@ -62,7 +67,13 @@ static NSString *ElementStop = @"ElementStop";
 	return self;	
 }
 
+
 -(void)dealloc{
+    [self clearAllAssets];
+
+	pthread_mutex_destroy(&mMutexAccess);
+	pthread_mutexattr_destroy(&mMutexAccessAttr);
+
 	[mElementStack release];
 	[mAssets release];
 	[super dealloc];
@@ -70,14 +81,27 @@ static NSString *ElementStop = @"ElementStop";
 
 -(int)addAsset:(NSArray*)path callfunction:(SEL)function functionObject:(id)funcObj setStringValueFunction:(SEL)valueFunction setStringValueObject:(id)obj;{
 	BasicParserAsset* asset = [[BasicParserAsset alloc] initWithPath:path setStringValueFunction:valueFunction setStringValueObject:obj callFunction:function functionObject:funcObj];
+
+    [self lock];
 	[mAssets addObject:asset];
-	[asset release];
+    [self unlock];
+	
+    [asset release];
 	return 0;
 }
 
+-(void)lock{
+	pthread_mutex_lock(&mMutexAccess);
+}
+
+-(void)unlock{
+	pthread_mutex_unlock(&mMutexAccess);
+}
 
 -(void)clearAllAssets{
+    [self lock];
 	[mAssets removeAllObjects];
+    [self unlock];
 }
 
 
@@ -85,6 +109,8 @@ static NSString *ElementStop = @"ElementStop";
 -(BasicParserAsset*)getAssetForElementStack:(NSMutableArray*)stack{
 	BasicParserAsset* ret = nil;
 	BasicParserAsset* asset = nil;
+
+    [self lock];
 	
 	NSEnumerator *enumer = [mAssets objectEnumerator];
 	while((asset = [enumer nextObject])){
@@ -119,7 +145,9 @@ static NSString *ElementStop = @"ElementStop";
 				}
 			}
 			// leafX -> leafY -> *
-			if([(NSString*)[[asset path] lastObject] isEqualToString:@"*"]){
+            NSString *lastObject = [[asset path] lastObject];
+
+			if (lastObject && [lastObject isEqualToString:@"*"]){
 				if([stack count] == [[asset path] count] && [stack count] > 1){
 					//Path start with
 					NSMutableArray *beginStackPath = [[NSMutableArray alloc] initWithArray:stack];
@@ -141,6 +169,8 @@ static NSString *ElementStop = @"ElementStop";
 			
 		}
 	}
+
+    [self unlock];
 	
 	return ret;
 }
@@ -149,7 +179,13 @@ static NSString *ElementStop = @"ElementStop";
 -(int)parseFromData:(NSData*)data{
     @autoreleasepool {
         NSXMLParser *parser = [[NSXMLParser alloc] initWithData:data];
+
+#ifdef DLNA_DEBUG
+        NSLog(@"Received from data: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+#endif
+
         int ret = [self startParser:parser];
+
         [parser release];
         return ret;
     }
@@ -165,6 +201,10 @@ static NSString *ElementStop = @"ElementStop";
         NSData *xml = [NSData dataWithContentsOfURL:url];
         NSXMLParser *parser = [[NSXMLParser alloc] initWithData:xml];;
 
+#ifdef DLNA_DEBUG
+        NSLog(@"Received from URL: %@", [[NSString alloc] initWithData:xml encoding:NSUTF8StringEncoding]);
+#endif
+        
         int ret = [self startParser:parser];
         [parser release];
         return ret;
@@ -176,13 +216,15 @@ static NSString *ElementStop = @"ElementStop";
 		return -1;
 	}
 
-	int ret = 0;
+	//int ret = 0;
 
 	[parser setShouldProcessNamespaces:mSupportNamespaces];
 	[parser setDelegate:self];
-	
+
+    [self lock];
 	BOOL pret = [parser parse];
     [parser setDelegate:nil];
+    [self unlock];
 
 	return pret? 0: -1;
 }
@@ -206,7 +248,7 @@ static NSString *ElementStop = @"ElementStop";
 	BasicParserAsset* asset = [self getAssetForElementStack:mElementStack];
 	if(asset != nil){
 		elementAttributeDict = attributeDict; //make temprary available to derived classes
-
+        
 		if([asset stringValueFunction] != nil && [asset stringValueObject] != nil){
 			//we are interested in a string and we are looking for this
 			[[asset stringCache] setString:@""];
@@ -232,7 +274,7 @@ static NSString *ElementStop = @"ElementStop";
 		//We where looking for this
 		//Set string (call function to set)
 		if([asset stringValueFunction] != nil && [asset stringValueObject] != nil){
-			if([[asset stringValueObject] respondsToSelector:[asset stringValueFunction]]){                
+			if([[asset stringValueObject] respondsToSelector:[asset stringValueFunction]]){
                 NSString *obj = [[NSString alloc] initWithString:[asset stringCache]];
 				[[asset stringValueObject] performSelector:[asset stringValueFunction] withObject:obj];
                 [obj release];
@@ -253,13 +295,13 @@ static NSString *ElementStop = @"ElementStop";
 	}else{
 		//XML structure error (!)
 		NSLog(@"XML wrong formatted (!)");
-		[parser abortParsing]; 
+		[parser abortParsing];
 	}
 }
 
 - (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string{
-	//The parser object may send the delegate several parser:foundCharacters: messages to report the characters of an element. 
-	//Because string may be only part of the total character content for the current element, 
+	//The parser object may send the delegate several parser:foundCharacters: messages to report the characters of an element.
+	//Because string may be only part of the total character content for the current element,
 	//you should append it to the current accumulation of characters until the element changes.
 	
 	//Are we looking for this ?

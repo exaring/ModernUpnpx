@@ -118,6 +118,10 @@ private:
 	return UPNP::GetInstance()->GetSSDP()->Stop();
 }
 
+-(void)reset{
+	return UPNP::GetInstance()->GetSSDP()->Reset();
+}
+
 
 
 -(int)searchSSDP{
@@ -125,8 +129,8 @@ private:
 }
 
 
--(int)addObserver:(SSDPDB_ObjC_Observer*)obs{
-	int ret = 0;
+-(NSUInteger)addObserver:(SSDPDB_ObjC_Observer*)obs{
+	NSUInteger ret = 0;
 	[self lock];
 	[mObservers addObject:obs];
 	ret = [mObservers count];
@@ -134,8 +138,8 @@ private:
 	return ret;
 }
 
--(int)removeObserver:(SSDPDB_ObjC_Observer*)obs{
-	int ret = 0;
+-(NSUInteger)removeObserver:(SSDPDB_ObjC_Observer*)obs{
+	NSUInteger ret = 0;
 	[self lock];
 	[mObservers removeObject:obs];
 	ret = [mObservers count];

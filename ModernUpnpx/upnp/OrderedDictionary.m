@@ -40,17 +40,25 @@ NSString *DescriptionForObject(NSObject *object, id locale, NSUInteger indent)
 
 - (id)init
 {
-	return [self initWithCapacity:0];
+    self = [super init];
+    
+    if (self != nil) {
+        dictionary = [[NSMutableDictionary alloc] initWithCapacity:0];
+        array = [[NSMutableArray alloc] initWithCapacity:0];
+    }
+    
+    return self;
 }
 
 - (id)initWithCapacity:(NSUInteger)capacity
 {
 	self = [super init];
-	if (self != nil)
-	{
+
+    if (self != nil) {
 		dictionary = [[NSMutableDictionary alloc] initWithCapacity:capacity];
 		array = [[NSMutableArray alloc] initWithCapacity:capacity];
 	}
+
 	return self;
 }
 
@@ -58,7 +66,8 @@ NSString *DescriptionForObject(NSObject *object, id locale, NSUInteger indent)
 {
 	[dictionary release];
 	[array release];
-	[super dealloc];
+
+    [super dealloc];
 }
 
 - (id)copy

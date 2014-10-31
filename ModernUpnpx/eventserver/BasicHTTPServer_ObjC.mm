@@ -132,7 +132,7 @@ public:
 	
 	bool Response(int *returncode, map<string, string> *headers, char **body, int *bodylen){
 		@autoreleasepool {
-            BOOL ret;
+            BOOL ret = false;
 
             int oReturnCode;
             NSMutableDictionary *oHeaders = [[NSMutableDictionary alloc] init];

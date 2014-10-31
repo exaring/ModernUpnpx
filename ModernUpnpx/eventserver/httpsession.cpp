@@ -31,6 +31,8 @@
 //
 // **********************************************************************************
 
+#include <stdlib.h>
+#include <string.h>
 
 #include "httpsession.h"
 #include "tools.h"

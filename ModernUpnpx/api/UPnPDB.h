@@ -54,12 +54,14 @@
 
 -(id)initWithSSDP:(SSDPDB_ObjC*)ssdp; 
 
+-(void)reset;
+
 -(void)lock;
 -(void)unlock;
 -(void)httpThread:(id)argument;
 
--(int)addObserver:(id<UPnPDBObserver>)observer;
--(int)removeObserver:(id<UPnPDBObserver>)observer;
+-(NSUInteger)addObserver:(id<UPnPDBObserver>)observer;
+-(NSUInteger)removeObserver:(id<UPnPDBObserver>)observer;
 
 -(NSArray*)getSSDPServicesFor:(BasicUPnPDevice*)device; //Returns NSArray[SSDPDBDevice_ObjC*] devices
 -(NSArray*)getSSDPServicesForUUID:(NSString*)uuid; //Returns NSArray[SSDPDBDevice_ObjC*] devices

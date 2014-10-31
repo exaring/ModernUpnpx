@@ -69,8 +69,8 @@ typedef enum MediaPlaylistState{
 	MediaPlaylistState state;
 }
 
--(int)addObserver:(id<MediaPlaylistObserver>)obs;
--(int)removeObserver:(id<MediaPlaylistObserver>)obs;
+-(NSUInteger)addObserver:(id<MediaPlaylistObserver>)obs;
+-(NSUInteger)removeObserver:(id<MediaPlaylistObserver>)obs;
 
 -(int)loadWithMediaServer:(MediaServer1Device*)server forContainer:(MediaServer1ContainerObject*)selectedContainer;
 

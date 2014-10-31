@@ -210,11 +210,13 @@ int SSDP::Stop(){
 	return 0;
 }
 
-
+void SSDP::Reset(){
+    mDB->Reset();
+}
 
 //Multicast M-Search
 int SSDP::Search(){
-	u32 seconds = 3;
+	u32 seconds = 1; // CHANGED FROM 3 TO 1
 	char target[]="ssdp:all";
 	const char *os=mOS.c_str();
 	const char *product=mProduct.c_str();
@@ -225,6 +227,8 @@ int SSDP::Search(){
 	
 	if(mMulticastSocket != INVALID_SOCKET){
 		sendto(mMulticastSocket, buf, strlen(buf), 0, (struct sockaddr*)&mDstaddr , sizeof(struct sockaddr));
+		sendto(mMulticastSocket, buf, strlen(buf), 0, (struct sockaddr*)&mDstaddr , sizeof(struct sockaddr)); // CHANGED ADDING 2nd LINE
+		sendto(mMulticastSocket, buf, strlen(buf), 0, (struct sockaddr*)&mDstaddr , sizeof(struct sockaddr)); // CHANGED ADDING 3nd LINE
 	}else{
 		printf("invalid socket\n");
 	}
@@ -293,7 +297,10 @@ int SSDP::ReadLoop(){
 	//Read UDP answers
 	while(mReadLoop){
 		//printf("SSDP::ReadLoop, enter 'select'\n");
-		
+		if (mMulticastSocket == INVALID_SOCKET) {
+            break;
+        }
+
 		//(Re)set file descriptor
 		FD_ZERO(&mReadFDS);
         FD_ZERO(&mWriteFDS);
@@ -313,6 +320,10 @@ int SSDP::ReadLoop(){
 			printf("Socket error!");
 			break;
 		}else if(ret != 0){
+            if (mMulticastSocket == INVALID_SOCKET) {
+                break;
+            }
+
 			//Multicast
 			if(FD_ISSET(mMulticastSocket, &mExceptionFDS)){
 				printf("Error on Multicast socket, continue\n");
@@ -321,11 +332,18 @@ int SSDP::ReadLoop(){
 				//Data
 				//printf("Data\n");
 				ret = recvfrom(mMulticastSocket, buf, bufsize, 0, (struct sockaddr*)&sender, &senderlen);
+                if (mMulticastSocket == INVALID_SOCKET) {
+                    break;
+                }
 				if(ret != SOCKET_ERROR){
 					//Be sure to only deliver full messages (!)
 					IncommingMessage((struct sockaddr*)&sender, buf, ret);
 				}
 			}
+
+            if (mUnicastSocket == INVALID_SOCKET) {
+                break;
+            }
             //Unicast
             if(FD_ISSET(mUnicastSocket, &mExceptionFDS)){
 				printf("Error on Unicast socket, continue\n");
@@ -334,6 +352,9 @@ int SSDP::ReadLoop(){
 				//Data
 				//printf("Data\n");
 				ret = recvfrom(mUnicastSocket, buf, bufsize, 0, (struct sockaddr*)&sender, &senderlen);
+                if (mUnicastSocket == INVALID_SOCKET) {
+                    break;
+                }
 				if(ret != SOCKET_ERROR){
 					//Be sure to only deliver full messages (!)
 					IncommingMessage((struct sockaddr*)&sender, buf, ret);

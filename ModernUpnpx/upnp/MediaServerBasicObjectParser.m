@@ -236,7 +236,7 @@
         if ([duration respondsToSelector:@selector(HMS2Seconds)])
             [media setDurationInSeconds:[duration HMS2Seconds]];
         else
-            [media setDurationInSeconds:@""];
+            [media setDurationInSeconds:0];
 		[media setBitrate:bitrate];
 		[media setIcon:icon]; //REMOVE THIS ?
 		[media setAlbumArt:albumArt];
@@ -280,7 +280,7 @@
         if ([duration respondsToSelector:@selector(HMS2Seconds)])
             [r setDurationInSeconds:[duration HMS2Seconds]];
         else
-            [r setDurationInSeconds:@""];
+            [r setDurationInSeconds:0];
         [resources addObject:r];
         [r release];
         

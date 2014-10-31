@@ -53,6 +53,7 @@ public:
 
 	int Start();
 	int Stop();
+    void Reset();
 	
 	int AddObserver(SSDPDBObserver* obs);	
 	int RemoveObserver(SSDPDBObserver* obs);	

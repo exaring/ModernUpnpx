@@ -82,7 +82,7 @@
 
 -(void)start{
     //Start the subscription timer
-    mTimeoutTimer = [NSTimer timerWithTimeInterval:60.0 target:self selector:@selector(ManageSubscriptionTimeouts:) userInfo:nil repeats:YES];
+    mTimeoutTimer = [NSTimer timerWithTimeInterval:11.0 target:self selector:@selector(ManageSubscriptionTimeouts:) userInfo:nil repeats:YES]; // CHANGED FROM 60.0 TO 11.0
     [[NSRunLoop currentRunLoop] addTimer:mTimeoutTimer forMode:NSDefaultRunLoopMode];
 }
 -(void)stop{

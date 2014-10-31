@@ -44,6 +44,7 @@
 #import "SoapActionsWANIPConnection1.h"
 #import "SoapActionsWANPPPConnection1.h"
 
+#undef DLNA_DEBUG
 
 @interface SoapAction () {
 	NSURL *_actionURL;
@@ -100,7 +101,11 @@
 	[body appendFormat:@"</s:Body></s:Envelope>"];
 	len = [body length];
 
-	//Construct the HTML POST 
+    #ifdef DLNA_DEBUG
+        NSLog(@"Sending to %@: %@", _actionURL, body);
+    #endif
+
+	//Construct the HTML POST
 	NSMutableURLRequest* urlRequest=[NSMutableURLRequest requestWithURL:_actionURL
 															cachePolicy:NSURLRequestReloadIgnoringCacheData
 														timeoutInterval:15.0];
@@ -127,6 +132,10 @@
 	if([urlResponse statusCode] != 200){
 		ret = 0-[urlResponse statusCode];	
 		NSString *rsp = [[NSString  alloc] initWithData:resp encoding:NSUTF8StringEncoding];
+
+#ifdef DLNA_DEBUG
+        NSLog(@"Failed with %d: %@", [urlResponse statusCode], rsp);
+#endif
 		[rsp release];
 	}else{
 		ret = 0;

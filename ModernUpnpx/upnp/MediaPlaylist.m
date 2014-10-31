@@ -88,8 +88,8 @@
 }
 
 
--(int)addObserver:(MediaPlaylistObserver*)obs{
-	int ret = 0;
+-(NSUInteger)addObserver:(MediaPlaylistObserver*)obs{
+	NSUInteger ret = 0;
 	
 	[mObservers addObject:obs];
 	ret = [mObservers count];
@@ -98,8 +98,8 @@
 }
 
 
--(int)removeObserver:(MediaPlaylistObserver*)obs{
-	int ret = 0;
+-(NSUInteger)removeObserver:(MediaPlaylistObserver*)obs{
+	NSUInteger ret = 0;
 	
 	[mObservers removeObject:obs];
 	ret = [mObservers count];
