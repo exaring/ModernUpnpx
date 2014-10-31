@@ -17,4 +17,5 @@ Pod::Spec.new do |s|
   s.ios.source_files =  'ModernUpnpx/{api,common,eventserver,ssdp,upnp}/*.{h,m,mm,c,cpp}', 'ModernUpnpx/port/ios/*.{h,m}'
   s.osx.source_files =  'ModernUpnpx/{api,common,eventserver,ssdp,upnp}/*.{h,m,mm,c,cpp}', 'ModernUpnpx/port/macos/*.{h.m}'
   s.xcconfig         =  { 'OTHER_LDFLAGS' => '-lstdc++' }
+  s.requires_arc = false
 end
